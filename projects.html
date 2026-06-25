@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Our Work — Piromi Projects</title>
+  <meta name="description" content="See the work of Piromi Projects: full home renovation gallery plus before-and-after transformations across the GTA, Durham, and surrounding regions." />
+  <link rel="icon" type="image/png" href="assets/piromi-logo-icon.png" />
+  <link rel="apple-touch-icon" href="assets/piromi-logo-icon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{sand:'#D2C8BE'}}}};</script>
+  <style>
+    html{scroll-behavior:smooth}
+    section[id]{scroll-margin-top:84px}
+    /* Masonry gallery */
+    .masonry{column-gap:1rem}
+    @media (min-width:640px){.masonry{column-count:2}}
+    @media (min-width:1024px){.masonry{column-count:3}}
+    .masonry figure{break-inside:avoid;margin-bottom:1rem}
+    .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.in{opacity:1;transform:none}
+  </style>
+</head>
+<body class="min-h-screen text-[#2E2C2A] bg-[#F8F5F2]">
+  <div id="root"></div>
+
+  <script type="module">
+    import React, { useEffect, useState, useRef, useCallback } from "https://esm.sh/react@18";
+    import { createRoot } from "https://esm.sh/react-dom@18/client";
+    const h = React.createElement;
+
+    function Section(props){ return h('section', props.attrs || {}, ...(props.children || [])); }
+
+    // Project categories and the photo-to-category mapping.
+    const CATEGORIES = [
+      { key: 'painting',  label: 'Painting & Lighting' },
+      { key: 'flooring',  label: 'Flooring & Carpentry' },
+      { key: 'bathkitchen', label: 'Bathrooms & Kitchens' },
+      { key: 'exterior',  label: 'Exterior & Landscaping' }
+    ];
+    const CATEGORY_BY_FILE = {
+      'project_001.jpg': 'flooring',
+      'project_002.jpg': 'painting',
+      'project_003.jpg': 'painting',
+      'project_004.jpg': 'flooring',
+      'project_005.jpg': 'bathkitchen',
+      'project_006.jpg': 'flooring',
+      'project_007.jpg': 'flooring',
+      'project_008.jpg': 'flooring',
+      'project_009.jpg': 'bathkitchen',
+      'project_010.jpg': 'flooring',
+      'project_011.jpg': 'bathkitchen',
+      'project_012.jpg': 'painting',
+      'project_013.jpg': 'painting'
+    };
+
+    function Lightbox({ images, index, onClose, onPrev, onNext }){
+      useEffect(()=>{
+        if(index == null) return;
+        function onKey(e){
+          if(e.key === 'Escape') onClose();
+          else if(e.key === 'ArrowLeft') onPrev();
+          else if(e.key === 'ArrowRight') onNext();
+        }
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+        return ()=>{ document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+      }, [index, onClose, onPrev, onNext]);
+
+      if(index == null) return null;
+      const src = images[index];
+      return h('div', {
+          className: 'fixed inset-0 z-[100] bg-[#1C1A18]/92 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8',
+          onClick: onClose, role: 'dialog', 'aria-modal': 'true'
+        },
+        h('button', { onClick: (e)=>{ e.stopPropagation(); onClose(); }, 'aria-label': 'Close',
+          className: 'absolute top-4 right-4 h-11 w-11 rounded-full border border-white/30 text-white/90 text-xl hover:bg-white/10 transition flex items-center justify-center' }, '×'),
+        h('button', { onClick: (e)=>{ e.stopPropagation(); onPrev(); }, 'aria-label': 'Previous',
+          className: 'absolute left-3 sm:left-6 h-12 w-12 rounded-full border border-white/30 text-white/90 text-2xl hover:bg-white/10 transition flex items-center justify-center' }, '‹'),
+        h('button', { onClick: (e)=>{ e.stopPropagation(); onNext(); }, 'aria-label': 'Next',
+          className: 'absolute right-3 sm:right-6 h-12 w-12 rounded-full border border-white/30 text-white/90 text-2xl hover:bg-white/10 transition flex items-center justify-center' }, '›'),
+        h('figure', { className: 'max-w-6xl max-h-full flex flex-col items-center', onClick: (e)=>e.stopPropagation() },
+          h('img', { src, alt: 'Renovation project photo ' + (index+1), className: 'max-h-[82vh] w-auto rounded-xl shadow-2xl object-contain' }),
+          h('figcaption', { className: 'mt-3 text-sm text-white/70 tracking-wide' }, 'Photo ' + (index+1) + ' of ' + images.length)
+        )
+      );
+    }
+
+    // Interactive before/after comparison: drag the handle (or use arrow keys) to wipe
+    // between the original space and the finished result.
+    function Compare({ before, after, label }){
+      const [pos, setPos] = useState(50);
+      const ref = useRef(null);
+      const dragging = useRef(false);
+
+      const move = useCallback((clientX)=>{
+        const el = ref.current; if(!el) return;
+        const rect = el.getBoundingClientRect();
+        const p = ((clientX - rect.left) / rect.width) * 100;
+        setPos(Math.max(0, Math.min(100, p)));
+      }, []);
+
+      useEffect(()=>{
+        function onMove(e){ if(!dragging.current) return; move(e.touches ? e.touches[0].clientX : e.clientX); }
+        function onUp(){ dragging.current = false; }
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('touchmove', onMove);
+        window.addEventListener('mouseup', onUp);
+        window.addEventListener('touchend', onUp);
+        return ()=>{
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('touchmove', onMove);
+          window.removeEventListener('mouseup', onUp);
+          window.removeEventListener('touchend', onUp);
+        };
+      }, [move]);
+
+      function onKey(e){
+        if(e.key === 'ArrowLeft'){ e.preventDefault(); setPos(p => Math.max(0, p - 4)); }
+        else if(e.key === 'ArrowRight'){ e.preventDefault(); setPos(p => Math.min(100, p + 4)); }
+      }
+
+      return h('figure', { className: 'overflow-hidden rounded-2xl border border-sand bg-white shadow-sm' },
+        h('div', {
+            ref,
+            className: 'relative w-full aspect-[4/3] overflow-hidden select-none cursor-ew-resize touch-none',
+            onMouseDown: (e)=>{ dragging.current = true; move(e.clientX); },
+            onTouchStart: (e)=>{ dragging.current = true; move(e.touches[0].clientX); }
+          },
+          // Finished result (base layer)
+          h('img', { src: after, alt: (label || 'Project') + ' — after', draggable: false,
+            className: 'absolute inset-0 w-full h-full object-cover pointer-events-none' }),
+          // Original space, clipped to the left of the handle
+          h('img', { src: before, alt: (label || 'Project') + ' — before', draggable: false,
+            className: 'absolute inset-0 w-full h-full object-cover pointer-events-none',
+            style: { clipPath: 'inset(0 ' + (100 - pos) + '% 0 0)' } }),
+          // Corner labels
+          h('span', { className: 'absolute top-3 left-3 rounded-full bg-[#1C1A18]/65 text-white text-xs font-semibold px-3 py-1 pointer-events-none' }, 'Before'),
+          h('span', { className: 'absolute top-3 right-3 rounded-full bg-[#4B3B2A]/85 text-white text-xs font-semibold px-3 py-1 pointer-events-none' }, 'After'),
+          // Divider + handle
+          h('div', { className: 'absolute inset-y-0 w-0.5 bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.15)] pointer-events-none', style: { left: pos + '%' } }),
+          h('div', { tabIndex: 0, role: 'slider', 'aria-label': (label || 'Before and after') + ' comparison',
+              'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': Math.round(pos), onKeyDown: onKey,
+              className: 'absolute top-1/2 h-11 w-11 -translate-y-1/2 -translate-x-1/2 rounded-full bg-white border border-sand shadow-lg flex items-center justify-center text-[#4B3B2A] cursor-ew-resize focus:outline-none focus:ring-2 focus:ring-[#4B3B2A]',
+              style: { left: pos + '%' } }, '⇆')
+        ),
+        label ? h('figcaption', { className: 'px-4 py-3 text-sm font-semibold text-[#3B2F1D]' }, label) : null
+      );
+    }
+
+    function ProjectsPage(){
+      const email = 'piromiprojects@hotmail.com';
+      const year = '2026';
+      const [images, setImages] = useState([]);
+      const [error, setError] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [active, setActive] = useState(null);
+      const [filter, setFilter] = useState('all');
+      const [pairs, setPairs] = useState([]);
+
+      // Full-home renovation gallery
+      useEffect(()=>{
+        fetch('projects-assets/images.json', { cache: 'no-store' })
+          .then(r => { if(!r.ok) throw new Error('Cannot load gallery'); return r.json(); })
+          .then(list => setImages(Array.isArray(list)
+            ? list.map(n => ({ src: 'projects-assets/' + n, category: CATEGORY_BY_FILE[n] || null }))
+            : []))
+          .catch(e => setError(e.message))
+          .finally(()=> setLoading(false));
+      }, []);
+
+      // Before/after pairs (optional — the section shows a ready state when empty)
+      useEffect(()=>{
+        fetch('projects-assets/before-after.json', { cache: 'no-store' })
+          .then(r => r.ok ? r.json() : [])
+          .then(list => setPairs(Array.isArray(list)
+            ? list.filter(p => p && p.before && p.after).map(p => ({
+                before: 'projects-assets/' + p.before,
+                after: 'projects-assets/' + p.after,
+                label: p.label || ''
+              }))
+            : []))
+          .catch(()=> setPairs([]));
+      }, []);
+
+      // Photos shown for the active filter, and the bare src list the lightbox steps through.
+      const visible = filter === 'all' ? images : images.filter(im => im.category === filter);
+      const visibleSrcs = visible.map(im => im.src);
+
+      // Scroll-reveal for gallery items
+      useEffect(()=>{
+        if(!visible.length) return;
+        const io = new IntersectionObserver((entries)=>{
+          entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+        }, { rootMargin: '0px 0px -8% 0px' });
+        document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+        return ()=> io.disconnect();
+      }, [images, filter]);
+
+      // Reset the open photo when the category filter changes.
+      useEffect(()=> setActive(null), [filter]);
+
+      const close = useCallback(()=> setActive(null), []);
+      const prev = useCallback(()=> setActive(i => i==null ? i : (i - 1 + visibleSrcs.length) % visibleSrcs.length), [visibleSrcs.length]);
+      const next = useCallback(()=> setActive(i => i==null ? i : (i + 1) % visibleSrcs.length), [visibleSrcs.length]);
+
+      const subNavPill = 'rounded-2xl border border-[#BFAF9A] px-4 py-2 text-sm font-semibold shadow-sm hover:bg-[#4B3B2A] hover:text-white transition active:scale-[.99]';
+
+      return h('div', null,
+        // Header
+        h('header', { className: 'sticky top-0 z-50 backdrop-blur bg-[#F8F5F2]/80 border-b border-sand' },
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8' },
+            h('div', { className: 'flex items-center justify-between py-4' },
+              h('a', { href: 'index.html#home', className: 'flex items-center gap-3' },
+                h('img', { src: 'assets/piromi-logo-icon.png', alt: 'Piromi Projects logo', className: 'h-11 w-11 object-contain' }),
+                h('div', null,
+                  h('p', { className: 'font-extrabold tracking-tight text-xl text-[#3B2F1D]' }, 'Piromi Projects'),
+                  h('p', { className: 'text-xs text-[#7D7468] -mt-1' }, 'Precision • Integrity • Results')
+                )
+              ),
+              h('div', { className: 'flex items-center gap-3' },
+                h('a', { href: 'index.html#home', className: 'hidden sm:inline-flex items-center rounded-2xl border border-[#BFAF9A] px-4 py-2 text-sm font-semibold shadow-sm hover:bg-[#EDE7E1] transition active:scale-[.99]' }, 'Home'),
+                h('a', { href: 'index.html#quote', className: 'inline-flex items-center rounded-2xl border border-[#BFAF9A] px-4 py-2 text-sm font-semibold shadow-sm hover:bg-[#4B3B2A] hover:text-white transition active:scale-[.99]' }, 'Get a Quote')
+              )
+            )
+          )
+        ),
+
+        // Intro
+        Section({ attrs: { className: 'relative' }, children: [
+          h('div', { className: 'absolute inset-0 bg-gradient-to-b from-[#EDE7E1] via-[#F8F5F2] to-[#F3EFEA]' }),
+          h('div', { className: 'relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 lg:pt-20 pb-8' },
+            h('p', { className: 'text-sm font-semibold uppercase tracking-[0.2em] text-[#9A8E7E]' }, 'Our Work'),
+            h('div', { className: 'mt-3 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6' },
+              h('div', { className: 'max-w-2xl' },
+                h('h1', { className: 'text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight text-[#3B2F1D]' }, 'Renovations, start to finish'),
+                h('p', { className: 'mt-4 text-lg text-[#5E554B]' }, 'Browse our full home renovation gallery, then slide through real before-and-after transformations to see the difference for yourself.')
+              ),
+              h('a', { href: 'index.html#quote', className: 'self-start lg:self-auto rounded-2xl bg-[#4B3B2A] text-white px-5 py-3 text-sm font-semibold shadow hover:bg-[#3B2F1D] transition' }, 'Request an Estimate')
+            ),
+            // Sub-navigation between the two sections
+            h('div', { className: 'mt-8 flex flex-wrap gap-2' },
+              h('a', { href: '#renovations', className: subNavPill }, 'Full Renovations'),
+              h('a', { href: '#before-after', className: subNavPill }, 'Before & After')
+            )
+          )
+        ] }),
+
+        // Section 1 — Full Home Renovations gallery
+        Section({ attrs: { id: 'renovations', className: 'relative' }, children: [
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 pb-16' },
+            h('div', { className: 'mb-6' },
+              h('h2', { className: 'text-3xl font-extrabold tracking-tight text-[#3B2F1D]' }, 'Full Home Renovations'),
+              h('p', { className: 'mt-2 text-[#5E554B]' }, 'Complete, top-to-bottom transformations. Filter by trade, then tap any photo to view it larger.')
+            ),
+            // Category filter tabs
+            (!loading && !error && images.length)
+              ? h('div', { className: 'mb-8 flex flex-wrap gap-2', role: 'tablist', 'aria-label': 'Filter projects by category' },
+                  ...[{ key: 'all', label: 'All Work' }, ...CATEGORIES].map(cat => {
+                    const count = cat.key === 'all' ? images.length : images.filter(im => im.category === cat.key).length;
+                    if(cat.key !== 'all' && count === 0) return null;
+                    const isActive = filter === cat.key;
+                    return h('button', {
+                      key: cat.key, role: 'tab', 'aria-selected': isActive ? 'true' : 'false',
+                      onClick: ()=> setFilter(cat.key),
+                      className: 'rounded-2xl border px-4 py-2 text-sm font-semibold shadow-sm transition active:scale-[.99] ' +
+                        (isActive
+                          ? 'bg-[#4B3B2A] text-white border-[#4B3B2A]'
+                          : 'border-[#BFAF9A] text-[#3B2F1D] hover:bg-[#EDE7E1]')
+                    }, cat.label, h('span', { className: 'ml-2 text-xs ' + (isActive ? 'text-white/70' : 'text-[#9A8E7E]') }, count));
+                  })
+                )
+              : null,
+            error
+              ? h('p', { className: 'mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3' }, 'Error loading gallery: ' + error)
+              : null,
+            loading
+              ? h('div', { className: 'masonry' },
+                  ...Array.from({length:9}, (_,i)=> h('figure', { key: i, className: 'rounded-2xl bg-[#ECE6DF] border border-sand animate-pulse', style: { height: (180 + (i % 3) * 70) + 'px' } }))
+                )
+              : (visible.length
+                  ? h('div', { className: 'masonry' },
+                      ...visible.map((im, i) => h('figure', { key: im.src, className: 'reveal group relative overflow-hidden rounded-2xl bg-white border border-sand shadow-sm hover:shadow-xl transition cursor-pointer',
+                          onClick: ()=> setActive(i) },
+                        h('img', { src: im.src, loading: 'lazy', alt: 'Full home renovation — photo ' + (i+1),
+                          className: 'w-full h-auto block transition duration-500 group-hover:scale-[1.04]' }),
+                        h('div', { className: 'pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1C1A18]/35 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition' }),
+                        h('span', { className: 'pointer-events-none absolute bottom-3 left-3 text-xs font-semibold text-white opacity-0 group-hover:opacity-100 transition' }, String(i+1).padStart(2,'0'))
+                      ))
+                    )
+                  : h('div', { className: 'mt-2 rounded-2xl border border-sand bg-white p-10 text-center text-[#7D7468]' }, 'Gallery photos are coming soon.')
+                )
+          )
+        ] }),
+
+        // Section 2 — Before & After transformations
+        Section({ attrs: { id: 'before-after', className: 'relative bg-[#F3EFEA] border-t border-sand' }, children: [
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16' },
+            h('div', { className: 'mb-8 max-w-2xl' },
+              h('h2', { className: 'text-3xl font-extrabold tracking-tight text-[#3B2F1D]' }, 'Before & After'),
+              h('p', { className: 'mt-2 text-[#5E554B]' }, 'Drag the slider on each photo to reveal the transformation—from the original space to the finished result.')
+            ),
+            pairs.length
+              ? h('div', { className: 'grid gap-8 md:grid-cols-2' },
+                  ...pairs.map((p, i) => h(Compare, { key: i, before: p.before, after: p.after, label: p.label }))
+                )
+              : h('div', { className: 'rounded-2xl border border-dashed border-[#BFAF9A] bg-white p-10 text-center' },
+                  h('p', { className: 'text-lg font-bold text-[#3B2F1D]' }, 'Transformations coming soon'),
+                  h('p', { className: 'mt-2 text-[#5E554B] max-w-xl mx-auto' }, 'We’re pairing up photos from our recent projects so you can slide between the original space and the finished result. Check back shortly.'),
+                  h('a', { href: 'index.html#quote', className: 'mt-6 inline-flex rounded-2xl bg-[#4B3B2A] text-white px-5 py-3 text-sm font-semibold shadow hover:bg-[#3B2F1D] transition' }, 'Start Your Project')
+                )
+          )
+        ] }),
+
+        // Footer
+        h('footer', { className: 'py-12 bg-[#2E2C2A] text-[#F8F5F2]' },
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8' },
+            h('div', { className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4' },
+              h('div', null,
+                h('p', { className: 'text-lg font-bold' }, 'Piromi Projects'),
+                h('p', { className: 'mt-1 text-sm text-[#C9C0B6]' }, 'Serving the GTA, Durham, and surrounding regions.')
+              ),
+              h('div', { className: 'text-sm' },
+                h('a', { className: 'underline', href: 'tel:+16478313920' }, '(647) 831-3920'),
+                h('span', { className: 'mx-2 text-[#5E554B]' }, '•'),
+                h('a', { className: 'underline', href: 'mailto:' + email }, email)
+              )
+            ),
+            h('div', { className: 'mt-8 border-t border-[#5E554B] pt-6 text-xs flex flex-wrap items-center justify-between gap-3 text-[#C9C0B6]' },
+              h('p', null, '© ' + year + ' Piromi Projects. All rights reserved.'),
+              h('a', { href: 'index.html#contact', className: 'underline' }, 'Contact Us')
+            )
+          )
+        ),
+
+        // Lightbox overlay (full renovation gallery)
+        h(Lightbox, { images: visibleSrcs, index: active, onClose: close, onPrev: prev, onNext: next })
+      );
+    }
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(h(ProjectsPage));
+
+    // Smoke tests
+    (function(){
+      fetch('projects-assets/images.json', { cache: 'no-store' })
+        .then(r => r.ok ? console.log('images.json reachable') : console.warn('images.json missing'));
+      console.assert(document.querySelector('#root'), 'Root element missing');
+    })();
+  </script>
+</body>
+</html>

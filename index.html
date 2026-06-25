@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Piromi Projects — Precision • Integrity • Results</title>
+  <meta name="description" content="Piromi Projects provides residential renovations, basement finishing, kitchens, bathrooms, flooring, and general contracting services across the GTA and Durham." />
+  <link rel="icon" type="image/png" href="assets/piromi-logo-icon.png" />
+  <link rel="apple-touch-icon" href="assets/piromi-logo-icon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{sand:'#D2C8BE'}}}};</script>
+  <style>html{scroll-behavior:smooth}</style>
+</head>
+<body class="min-h-screen text-[#2E2C2A] bg-[#F8F5F2]">
+  <div id="root"></div>
+
+  <script type="module">
+    import React from "https://esm.sh/react@18";
+    import { createRoot } from "https://esm.sh/react-dom@18/client";
+    const h = React.createElement;
+
+    function Section(props){ return h('section', props.attrs || {}, ...(props.children || [])); }
+
+    function PiromiProjectsSite(){
+      const email = "piromiprojects@hotmail.com";
+      const year = "2026";
+      const badgeItems = ['Licensed & Insured','Up-front Pricing','Warranty on Work','Clean Job Sites'];
+      const services = [
+        { title: 'Full-Home Renovations', body: 'Complete home transformations including layout redesign, structural updates, and full interior remodeling.' },
+        { title: 'Basement Finishing', body: 'Turn unfinished spaces into comfortable, livable areas with framing, insulation, drywall, flooring, and lighting.' },
+        { title: 'Bathrooms & Kitchens', body: 'Custom bathroom and kitchen upgrades, tile work, vanities, cabinetry, lighting, and plumbing fixtures.' },
+        { title: 'Framing, Drywall & Painting', body: 'New walls, ceilings, bulkheads, finishing, taping/mudding, and professional painting for a clean, smooth result.' },
+        { title: 'Flooring, Trim & Carpentry', body: 'Installations for hardwood, vinyl, laminate, baseboards, doors, window trim, and built-in carpentry features.' },
+        { title: 'Exterior & Landscaping', body: 'Decks, fences, interlock, grading, and exterior improvements for curb appeal and durability.' }
+      ];
+
+      return h('div', { className: 'min-h-screen' },
+        // Header
+        h('header', { className: 'sticky top-0 z-50 backdrop-blur bg-[#F8F5F2]/80 border-b border-sand' },
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8' },
+            h('div', { className: 'flex items-center justify-between py-4' },
+              h('a', { href: '#home', className: 'flex items-center gap-3' },
+                h('img', { src: 'assets/piromi-logo-icon.png', alt: 'Piromi Projects logo', className: 'h-11 w-11 object-contain' }),
+                h('div', null,
+                  h('p', { className: 'font-extrabold tracking-tight text-xl text-[#3B2F1D]' }, 'Piromi Projects'),
+                  h('p', { className: 'text-xs text-[#7D7468] -mt-1' }, 'Precision • Integrity • Results')
+                )
+              ),
+              h('div', { className: 'flex items-center gap-3' },
+                h('a', { href: 'projects.html', className: 'inline-flex items-center rounded-2xl border border-[#BFAF9A] px-4 py-2 text-sm font-semibold shadow-sm hover:bg-[#EDE7E1] transition active:scale-[.99]' }, 'Projects'),
+                h('a', { href: '#quote', className: 'inline-flex items-center rounded-2xl border border-[#BFAF9A] px-4 py-2 text-sm font-semibold shadow-sm hover:bg-[#4B3B2A] hover:text-white transition active:scale-[.99]' }, 'Get a Quote')
+              )
+            )
+          )
+        ),
+
+        // Hero
+        Section({ attrs: { id: 'home', className: 'relative' }, children: [
+          h('div', { className: 'absolute inset-0 bg-gradient-to-b from-[#EDE7E1] via-[#F8F5F2] to-[#F3EFEA]' }),
+          h('div', { className: 'relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-28' },
+            h('div', { className: 'grid lg:grid-cols-2 gap-10 items-center' },
+              h('div', null,
+                h('h1', { className: 'text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight text-[#3B2F1D]' },
+                  'Residential renovations,',
+                  h('span', { className: 'block text-[#6A5F55]' }, 'from planning to completion.')
+                ),
+                h('p', { className: 'mt-4 text-lg text-[#5E554B] max-w-xl' }, 'Full-home renovations, basement finishing, bathrooms, framing, drywall, flooring, lighting, landscaping, and handyman work across the GTA and Durham.'),
+                h('div', { className: 'mt-6 flex flex-wrap gap-3' },
+                  h('a', { href: '#quote', className: 'rounded-2xl bg-[#4B3B2A] text-white px-5 py-3 text-sm font-semibold shadow hover:bg-[#3B2F1D] transition' }, 'Request a Free Quote'),
+                  h('a', { href: 'tel:+16478313920', className: 'rounded-2xl border border-[#BFAF9A] px-5 py-3 text-sm font-semibold shadow-sm hover:bg-[#EDE7E1] transition' }, 'Call: (647) 831-3920')
+                )
+              ),
+              h('div', { className: 'relative' },
+                h('img', { src: 'assets/featured-staircase.png', alt: 'Featured renovation staircase', className: 'w-full h-full object-cover rounded-2xl shadow-lg border border-sand aspect-[4/3]' })
+              )
+            )
+          ),
+        ] }),
+
+        // Badges
+        Section({ attrs: { className: 'py-6' }, children: [
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8' },
+            h('div', { className: 'grid grid-cols-2 sm:grid-cols-4 gap-3 text-center' },
+              ...badgeItems.map(t => h('div', { key: t, className: 'rounded-2xl border border-sand bg-white px-4 py-3 text-sm font-semibold shadow-sm text-[#3B2F1D]' }, t))
+            )
+          )
+        ] }),
+
+        // Services
+        Section({ attrs: { id: 'services', className: 'py-16 lg:py-20 bg-[#F3EFEA]' }, children: [
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8' },
+            h('h2', { className: 'text-3xl font-extrabold tracking-tight text-[#3B2F1D]' }, 'Services'),
+            h('p', { className: 'mt-2 text-[#5E554B]' }, 'Comprehensive home improvement and renovation solutions tailored to your needs.'),
+            h('div', { className: 'mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-6' },
+              ...services.map(s => h('div', { key: s.title, className: 'rounded-2xl border border-sand bg-white p-8 shadow-sm hover:shadow-lg transition' },
+                h('p', { className: 'font-bold text-xl text-[#3B2F1D]' }, s.title),
+                h('p', { className: 'mt-3 text-base text-[#5E554B] leading-relaxed' }, s.body)
+              ))
+            )
+          )
+        ] }),
+
+        // Projects Teaser
+        Section({ attrs: { id: 'projects', className: 'py-16 lg:py-20' }, children: [
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8' },
+            h('div', { className: 'flex items-end justify-between gap-4' },
+              h('div', null,
+                h('h2', { className: 'text-3xl font-extrabold tracking-tight text-[#3B2F1D]' }, 'Our Work'),
+                h('p', { className: 'mt-2 text-[#5E554B]' }, 'Full home renovations and real before-and-after transformations.')
+              ),
+              h('a', { href: 'projects.html', className: 'rounded-2xl border border-[#BFAF9A] px-4 py-2 text-sm font-semibold shadow-sm hover:bg-[#EDE7E1] transition' }, 'View Projects')
+            ),
+            h('div', { className: 'mt-8 grid sm:grid-cols-2 gap-6' },
+              h('a', { href: 'projects.html#renovations', className: 'group rounded-2xl border border-sand bg-white p-8 shadow-sm hover:shadow-lg transition' },
+                h('p', { className: 'font-bold text-xl text-[#3B2F1D]' }, 'Full Home Renovations'),
+                h('p', { className: 'mt-3 text-base text-[#5E554B] leading-relaxed' }, 'A complete gallery of top-to-bottom remodels, filterable by trade.'),
+                h('span', { className: 'mt-4 inline-block text-sm font-semibold text-[#4B3B2A] group-hover:underline' }, 'Browse the gallery →')
+              ),
+              h('a', { href: 'projects.html#before-after', className: 'group rounded-2xl border border-sand bg-white p-8 shadow-sm hover:shadow-lg transition' },
+                h('p', { className: 'font-bold text-xl text-[#3B2F1D]' }, 'Before & After'),
+                h('p', { className: 'mt-3 text-base text-[#5E554B] leading-relaxed' }, 'Slide through paired photos to see each space go from original to finished.'),
+                h('span', { className: 'mt-4 inline-block text-sm font-semibold text-[#4B3B2A] group-hover:underline' }, 'See the transformations →')
+              )
+            )
+          )
+        ] }),
+
+        // Quote (Netlify form)
+        Section({ attrs: { id: 'quote', className: 'py-16 lg:py-20' }, children: [
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8' },
+            h('h2', { className: 'text-3xl font-extrabold tracking-tight text-[#3B2F1D]' }, 'Request a Free Quote'),
+            h('p', { className: 'mt-2 text-[#5E554B]' }, 'Tell us a bit about your project. We’ll get back quickly with next steps.'),
+            h('form', { name: 'quote', method: 'POST', 'data-netlify': 'true', 'netlify-honeypot': 'bot-field', className: 'mt-8 grid grid-cols-1 md:grid-cols-2 gap-4' },
+              h('input', { type: 'hidden', name: 'form-name', value: 'quote' }),
+              h('input', { type: 'hidden', name: 'subject', value: 'New Quote Request from piromiprojects.ca' }),
+              h('p', { className: 'hidden' }, "Don’t fill this out:", h('input', { name: 'bot-field' })),
+              h('input', { required: true, placeholder: 'Name', name: 'name', className: 'rounded-2xl border border-sand bg-white px-4 py-3 shadow-sm' }),
+              h('input', { required: true, type: 'email', placeholder: 'Email', name: 'email', className: 'rounded-2xl border border-sand bg-white px-4 py-3 shadow-sm' }),
+              h('input', { placeholder: 'Phone', name: 'phone', className: 'rounded-2xl border border-sand bg-white px-4 py-3 shadow-sm md:col-span-2' }),
+              h('textarea', { required: true, placeholder: 'Project details', name: 'details', className: 'rounded-2xl border border-sand bg-white px-4 py-3 shadow-sm md:col-span-2 min-h-[140px]' }),
+              h('button', { type: 'submit', className: 'rounded-2xl bg-[#4B3B2A] text-white px-5 py-3 text-sm font-semibold shadow hover:bg-[#3B2F1D] transition md:col-span-2' }, 'Send')
+            ),
+            h('p', { className: 'mt-4 text-sm text-[#7D7468]' },
+              'Prefer email? Write us at ', h('a', { className: 'underline', href: 'mailto:' + email }, email),
+              ' or call ', h('a', { className: 'underline', href: 'tel:+16478313920' }, '(647) 831-3920'), '.'
+            )
+          )
+        ] }),
+
+        // Contact
+        Section({ attrs: { id: 'contact', className: 'py-12 bg-[#2E2C2A] text-[#F8F5F2]' }, children: [
+          h('div', { className: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8' },
+            h('div', { className: 'grid md:grid-cols-2 gap-8' },
+              h('div', null,
+                h('p', { className: 'text-lg font-bold' }, 'Contact'),
+                h('p', { className: 'mt-2 text-sm' }, 'Phone: ', h('a', { className: 'underline', href: 'tel:+16478313920' }, '(647) 831-3920')),
+                h('p', { className: 'text-sm' }, 'Email: ', h('a', { className: 'underline', href: 'mailto:piromiprojects@hotmail.com' }, 'piromiprojects@hotmail.com')),
+                h('p', { className: 'text-sm' }, 'Service area: GTA, Durham, and Surrounding Regions')
+              ),
+              h('div', null,
+                h('p', { className: 'text-lg font-bold' }, 'Follow-up'),
+                h('p', { className: 'mt-2 text-sm' }, 'We typically reply the same day with a few clarifying questions and a ballpark estimate.')
+              )
+            ),
+            h('div', { className: 'mt-8 border-t border-[#5E554B] pt-6 text-xs flex flex-wrap items-center justify-between gap-3' },
+              h('p', null, '© ' + year + ' Piromi Projects. All rights reserved.'),
+              h('p', null, 'Built with care. π')
+            )
+          )
+        ] })
+      );
+    }
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(h(PiromiProjectsSite));
+
+    // Smoke tests
+    (function(){
+      const form = document.querySelector('form[name="quote"]');
+      console.assert(!!form, 'Quote form is missing');
+      console.assert((form.method || '').toLowerCase() === 'post', 'Form method should be POST');
+      console.assert(form.getAttribute('data-netlify') === 'true', 'data-netlify="true" missing on form');
+      console.assert(document.querySelector('header a[href="projects.html"]'), 'Projects link missing in header');
+      console.log('Smoke tests: OK');
+    })();
+  </script>
+</body>
+</html>
